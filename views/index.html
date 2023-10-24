@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate" />
+    <link rel="shortcut icon" href="/static/img/gopher-svgrepo-com.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/css/output.css">
+    <title>Go & HTMx Demo</title>
+    <script src="https://unpkg.com/htmx.org@1.9.6"
+        integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+</head>
+
+<body _="on scroll from window
+    if (window.scrollY > 200)
+        show #buttonUp
+    else
+        hide #buttonUp
+    end" class="container max-w-xl mx-auto mt-0 pt-20">
+
+    <header class="mb-8">
+        <a href="/" class="block w-fit mx-auto text-center text-3xl font-semibold">Go & HTMx Demo</a>
+    </header>
+
+    <main
+        _="on load set timezone to Intl.DateTimeFormat().resolvedOptions().timeZone then set cookies['X-TimeZone'] to {value: `${timezone}`}">
+
+        <section>
+            <ul class="flex flex-col gap-2" id="note-list">
+                {{ range .Notes }}
+                {{ block "note-list-element" . }}
+                <li class="card w-[420px] bg-neutral shadow-xl text-neutral-content">
+                    <div class="card-body p-4">
+                        <h3 class="card-title {{if .Completed }} line-through {{end}}">
+                            {{ .Title }}
+                        </h3>
+                        <p>{{ .Description }}</p>
+                        <div class="card-actions justify-between items-end">
+                            <p class="text-left text-xs text-accent font-medium">
+                                {{ .CreatedAt }}
+                            </p>
+                            <div>
+                                <button class="btn btn-primary" hx-patch="/update-note/?id={{ .ID }}"
+                                    hx-target="closest li" hx-swap="innerHTML">
+                                    Done/Undo
+                                </button>
+                                <button hx-delete="/delete-note/?id={{ .ID }}"
+                                    hx-confirm="Are you sure you want to delete the note with ID #{{ .ID }}?"
+                                    hx-target="closest li" hx-swap="delete" class="btn btn-ghost">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                {{ end }}
+                {{ end }}
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="text-left text-xl mt-12 font-medium">Add Note</h2>
+
+            <form class="grid grid-cols-7 my-4 gap-4 items-end" hx-post="/add-note" hx-target="#note-list"
+                hx-swap="afterbegin" hx-indicator="#spinner" hx-on::after-request="this.reset()">
+                <div class="col-span-5 flex flex-col gap-4">
+                    <div class="flex flex-col gap-2">
+                        <label for="note-title">Title</label>
+                        <input type="text" name="title" id="note-title" class="input input-bordered" required
+                            autofocus />
+                    </div>
+                    <div class="col-span-5 flex flex-col gap-2">
+                        <label for="note-description">Description</label>
+                        <input type="text" name="description" id="note-description" class="input input-bordered"
+                            required />
+                    </div>
+                </div>
+
+                <button type="submit" class="col-span-2 btn btn-accent pr-10">
+                    <span class="loading loading-spinner loading-sm htmx-indicator" id="spinner"></span>
+                    Submit
+                </button>
+            </form>
+        </section>
+    </main>
+
+    {{ template "footer" .}}
+
+    {{ template "button-up" .}}
+
+</body>
+
+</html>

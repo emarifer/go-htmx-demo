@@ -1,0 +1,5 @@
+tmp
+bin
+node_modules
+static/css/output.css
+notesDB.sqlite
