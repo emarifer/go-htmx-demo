@@ -55,29 +55,52 @@ func GetNotes(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddNote(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("X-TimeZone")
+	/* cookie, err := r.Cookie("X-TimeZone")
 	var timeZone string
 	if err == nil {
 		timeZone, _ = url.QueryUnescape(cookie.Value)
-	}
+	} */
 
 	time.Sleep(1 * time.Second) // to check how the spinner works
 	title := strings.Trim(r.PostFormValue("title"), " ")
 	description := strings.Trim(r.PostFormValue("description"), " ")
 	if len(title) == 0 || len(description) == 0 {
+		var errTitle, errDescription string
+		if len(title) == 0 {
+			errTitle = "Please enter a title in this field"
+		}
+		if len(description) == 0 {
+			errDescription = "Please enter a description in this field"
+		}
+
+		data := map[string]string{
+			"FormTitle":       title,
+			"FormDescription": description,
+			"ErrTitle":        errTitle,
+			"ErrDescription":  errDescription,
+		}
+
+		w.Header().Set("HX-Retarget", "form")
+		tmpl := template.Must(template.ParseFiles("views/index.html"))
+		tmpl.ExecuteTemplate(w, "new-note-form", data)
+
 		return
 	}
 
 	newNote := new(Note)
 	newNote.Title = title
 	newNote.Description = description
-	note, err := newNote.CreateNote()
+	_, err := newNote.CreateNote()
 	if err != nil {
 		log.Fatalf("something went wrong: %s", err.Error())
 	}
 
-	tmpl := template.Must(template.ParseFiles("views/index.html"))
-	tmpl.ExecuteTemplate(w, "note-list-element", convertDateTime(note, timeZone))
+	// http.Redirect(w, r, "/", http.StatusOK)
+
+	w.Header().Set("HX-Redirect", "/")
+
+	/* tmpl := template.Must(template.ParseFiles("views/index.html"))
+	tmpl.ExecuteTemplate(w, "note-list-element", convertDateTime(note, timeZone)) */
 }
 
 func CompleteNote(w http.ResponseWriter, r *http.Request) {
