@@ -10,7 +10,7 @@
 
 ### Screenshot:
 
-<img src="https://github.com/emarifer/your-first-10-applications-in-PHP/assets/68773736/a3432aea-dc0f-4e41-8605-511ce431ecc4" width="75%">
+<img src="https://github.com/emarifer/go-htmx-demo/assets/68773736/6011f6d6-ed37-46b4-81d4-56e990cc1ef6" width="75%">
 
 ---
 
