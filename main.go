@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	MakerMigrations()
+	MakeMigrations()
 }
 
 func main() {

@@ -27,14 +27,14 @@
     </header>
 
     <main
-        _="on load set timezone to Intl.DateTimeFormat().resolvedOptions().timeZone then set cookies['X-TimeZone'] to {value: `${timezone}`}">
+        _="on load set timezone to Intl.DateTimeFormat().resolvedOptions().timeZone then set cookies['X-TimeZone'] to {value: `${timezone}`, maxAge: 86400}">
 
         <section>
             <h2 class="text-left text-xl mt-12 font-medium">Add Note</h2>
 
-            {{ block "new-note-form" . }}
-            <form class="grid grid-cols-7 my-4 gap-4 items-end" hx-post="/add-note" hx-target="#note-list"
-                hx-swap="outerHTML" hx-indicator="#spinner">
+            <form class="grid grid-cols-7 my-4 gap-4 items-end" hx-post="/add-note" hx-target="this"
+                hx-indicator="#spinner">
+                {{ block "new-note-form" . }}
                 <div class="col-span-5 flex flex-col gap-4">
                     <div class="flex flex-col gap-2">
                         <label for="note-title">Title</label>
@@ -59,8 +59,8 @@
                     <span class="loading loading-spinner loading-sm htmx-indicator" id="spinner"></span>
                     Submit
                 </button>
+                {{ end }}
             </form>
-            {{ end }}
         </section>
 
         <section class="grid grid-cols-7">

@@ -22,7 +22,7 @@ func GetConnection() *sql.DB {
 	return db
 }
 
-func MakerMigrations() error {
+func MakeMigrations() error {
 	db := GetConnection()
 
 	stmt := `CREATE TABLE IF NOT EXISTS notes (

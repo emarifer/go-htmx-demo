@@ -61,7 +61,8 @@ func AddNote(w http.ResponseWriter, r *http.Request) {
 		timeZone, _ = url.QueryUnescape(cookie.Value)
 	} */
 
-	time.Sleep(1 * time.Second) // to check how the spinner works
+	time.Sleep(1 * time.Second) // only to check how the spinner works
+
 	title := strings.Trim(r.PostFormValue("title"), " ")
 	description := strings.Trim(r.PostFormValue("description"), " ")
 	if len(title) == 0 || len(description) == 0 {
@@ -80,7 +81,7 @@ func AddNote(w http.ResponseWriter, r *http.Request) {
 			"ErrDescription":  errDescription,
 		}
 
-		w.Header().Set("HX-Retarget", "form")
+		// w.Header().Set("HX-Retarget", "form")
 		tmpl := template.Must(template.ParseFiles("views/index.html"))
 		tmpl.ExecuteTemplate(w, "new-note-form", data)
 
@@ -95,9 +96,7 @@ func AddNote(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("something went wrong: %s", err.Error())
 	}
 
-	// http.Redirect(w, r, "/", http.StatusOK)
-
-	w.Header().Set("HX-Redirect", "/")
+	w.Header().Set("HX-Redirect", "/") // refresh the page from the client side
 
 	/* tmpl := template.Must(template.ParseFiles("views/index.html"))
 	tmpl.ExecuteTemplate(w, "note-list-element", convertDateTime(note, timeZone)) */
@@ -110,12 +109,14 @@ func CompleteNote(w http.ResponseWriter, r *http.Request) {
 		timeZone, _ = url.QueryUnescape(cookie.Value)
 	}
 
-	urlStr := r.URL.String()
+	/* urlStr := r.URL.String()
 	myUrl, _ := url.Parse(urlStr)
 	params, _ := url.ParseQuery(myUrl.RawQuery)
 	id, _ := strconv.Atoi(params.Get("id"))
 
-	// fmt.Println("ID: ", id)
+	fmt.Println("ID: ", r.URL.Query().Get("id")) */
+
+	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
 
 	note := new(Note)
 	note.ID = id
@@ -134,12 +135,8 @@ func CompleteNote(w http.ResponseWriter, r *http.Request) {
 }
 
 func RemoveNote(w http.ResponseWriter, r *http.Request) {
-	urlStr := r.URL.String()
-	myUrl, _ := url.Parse(urlStr)
-	params, _ := url.ParseQuery(myUrl.RawQuery)
-	id, _ := strconv.Atoi(params.Get("id"))
+	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
 
-	// fmt.Println("ID: ", id)
 	note := new(Note)
 	note.ID = id
 	err := note.DeleteNote()
@@ -151,7 +148,10 @@ func RemoveNote(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent) */
 }
 
-/* Parsear parámetros. VER:
+/* HOW TO EXTRACT URL QUERY PARAMETERS IN GO. VER:
+https://freshman.tech/snippets/go/extract-url-query-params/
+
+Parsear parámetros. VER:
 https://www.sitepoint.com/get-url-parameters-with-go/
 https://www.golangprograms.com/how-do-you-set-headers-in-an-http-response-in-go.html
 */
