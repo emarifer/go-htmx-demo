@@ -27,7 +27,7 @@
     </header>
 
     <main
-        _="on load set timezone to Intl.DateTimeFormat().resolvedOptions().timeZone then set cookies['X-TimeZone'] to {value: `${timezone}`, maxAge: 86400}">
+        _="on load set timezone to Intl.DateTimeFormat().resolvedOptions().timeZone then set cookies['X-TimeZone'] to {value: `${timezone}`, maxAge: 31536000}">
 
         <section>
             <h2 class="text-left text-xl mt-12 font-medium">Add Note</h2>
@@ -79,7 +79,7 @@
                             </p>
                             <div>
                                 <button class="btn btn-primary" hx-patch="/update-note/?id={{ .ID }}"
-                                    hx-target="closest li" hx-swap="innerHTML">
+                                    hx-target="closest li" hx-swap="outerHTML">
                                     Done/Undo
                                 </button>
                                 <button hx-delete="/delete-note/?id={{ .ID }}"
