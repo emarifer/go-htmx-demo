@@ -1,0 +1,65 @@
+{{ define "base.layout.start" }}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A demo application integrating golang native HTML templating with HTMX">
+    <meta name="google" content="notranslate" />
+    <link rel="shortcut icon" href="/static/img/gopher-svgrepo-com.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/css/output.css">
+    <title>{{ .Title }}</title>
+    <script src="https://unpkg.com/htmx.org@1.9.6"
+        integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+</head>
+
+<body _="on scroll from window
+    if (window.scrollY > 200)
+        show #buttonUp
+    else
+        hide #buttonUp
+    end" class="container max-w-xl mx-auto mt-0 pt-20" hx-boost="true">
+
+    <header>
+        <nav class="flex justify-between items-center mb-8 w-full">
+            <a href="/" class="whitespace-nowrap text-3xl font-semibold">
+                Go & HTMx Demo
+            </a>
+            <div class="flex justify-center items-center mx-4">
+                <a href="https://go.dev/" target="_blank">
+                    <img class="w-20" src="/static/img/gopher-svgrepo-com.svg" alt="Logo Gopher">
+                </a>
+                <a href="https://htmx.org/" target="_blank">
+                    <img class="w-56" src="/static/img/htmx-logo.png" alt="Logo Htmx">
+                </a>
+            </div>
+            <a class="text-xl font-semibold text-accent hover:text-accent-content btn btn-outline hover:bg-accent capitalize"
+                href="/about">
+                About Me
+            </a>
+        </nav>
+    </header>
+
+    <main>
+{{ end }}
+
+
+{{ define "base.layout.end" }}
+    </main>
+
+    {{ template "footer" .}}
+
+    {{ template "button-up" .}}
+
+</body>
+
+</html>
+{{ end }}
+
+<!-- 
+    <a class="text-xl font-semibold text-accent hover:text-accent-focus" href="/about">About</a>
+ -->

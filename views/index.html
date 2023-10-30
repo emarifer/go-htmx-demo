@@ -1,131 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
+{{ template "base.layout.start" . }}
+<section>
+    <h2 class="text-left text-xl mt-12 font-medium">Add Note</h2>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google" content="notranslate" />
-    <link rel="shortcut icon" href="/static/img/gopher-svgrepo-com.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/static/css/output.css">
-    <title>Go & HTMx Demo</title>
-    <script src="https://unpkg.com/htmx.org@1.9.6"
-        integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
-        crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
-</head>
-
-<body _="on scroll from window
-    if (window.scrollY > 200)
-        show #buttonUp
-    else
-        hide #buttonUp
-    end" class="container max-w-xl mx-auto mt-0 pt-20">
-
-    <header class="flex justify-center items-center mb-8">
-        <a href="/" class="block w-fit mx-auto text-3xl font-semibold">
-            Go & HTMx Demo
-        </a>
-        <div class="flex justify-center items-center w-fit -translate-x-4">
-            <a href="https://go.dev/" target="_blank">
-                <img class="w-14" src="/static/img/gopher-svgrepo-com.svg" alt="Logo Gopher">
-            </a>
-            <a href="https://htmx.org/" target="_blank">
-                <img class="w-56" src="/static/img/htmx-logo.png" alt="Logo Htmx">
-            </a>
+    <form class="grid grid-cols-7 my-4 gap-4 items-end" hx-post="/add-note" hx-target="this">
+        {{ block "new-note-form" . }}
+        <div class="col-span-5 flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
+                <label for="note-title">Title</label>
+                <input type="text" name="title" id="note-title" class="input input-bordered" autofocus
+                    value="{{ if .FormTitle }}{{.FormTitle}}{{ end }}" />
+                <span class="text-xs text-red-700">
+                    {{ .ErrTitle }}
+                </span>
+            </div>
+            <div class="col-span-5 flex flex-col gap-2">
+                <label for="note-description">Description</label>
+                <input type="text" name="description" id="note-description" class="input input-bordered"
+                    value="{{ if .FormDescription }}{{.FormDescription}}{{ end }}" />
+                <span class="text-xs text-red-700">
+                    {{ .ErrDescription }}
+                </span>
+            </div>
         </div>
-    </header>
 
-    <main>
-        <section>
-            <h2 class="text-left text-xl mt-12 font-medium">Add Note</h2>
+        <button type="submit"
+            class="col-span-2 btn btn-accent pr-10 {{ if .ErrDescription }} mb-6 {{ else }} mb-2 {{ end }}">
+            <span class="w-5 htmx-indicator" id="spinner"></span>
+            Submit
+        </button>
+        {{ end }}
+    </form>
+</section>
 
-            <form class="grid grid-cols-7 my-4 gap-4 items-end" hx-post="/add-note" hx-target="this">
-                {{ block "new-note-form" . }}
-                <div class="col-span-5 flex flex-col gap-4">
-                    <div class="flex flex-col gap-2">
-                        <label for="note-title">Title</label>
-                        <input type="text" name="title" id="note-title" class="input input-bordered" autofocus
-                            value="{{ if .FormTitle }}{{.FormTitle}}{{ end }}" />
-                        <span class="text-xs text-red-700">
-                            {{ .ErrTitle }}
-                        </span>
-                    </div>
-                    <div class="col-span-5 flex flex-col gap-2">
-                        <label for="note-description">Description</label>
-                        <input type="text" name="description" id="note-description" class="input input-bordered"
-                            value="{{ if .FormDescription }}{{.FormDescription}}{{ end }}" />
-                        <span class="text-xs text-red-700">
-                            {{ .ErrDescription }}
-                        </span>
+<section class="grid grid-cols-7" hx-get="/notes" hx-target="this" hx-swap="innerHTML" hx-trigger="load from:window"
+    hx-indicator="#loading" hx-headers='js:{"X-TimeZone": Intl.DateTimeFormat().resolvedOptions().timeZone}'>
+    {{ block "note-list" . }}
+    <div class="col-span-7">
+        <span class="block mx-auto loading loading-spinner loading-lg htmx-indicator" id="loading"></span>
+    </div>
+    {{ if .Notes}}
+    <ul class="col-span-5 flex flex-col gap-2 mt-4">
+        {{ range .Notes }}
+        {{ block "note-list-element" . }}
+        <li class="card w-full bg-neutral shadow-xl text-neutral-content">
+            <div class="card-body p-4">
+                <h3 class="card-title {{if .Completed }} line-through {{end}}">
+                    {{ .Title }}
+                </h3>
+                <p>{{ .Description }}</p>
+                <div class="card-actions justify-between items-end">
+                    <p class="text-left text-xs text-accent font-medium">
+                        {{ .CreatedAt }}
+                    </p>
+                    <div>
+                        <button class="btn btn-primary" hx-patch="/update-note/?id={{ .ID }}" hx-target="closest li"
+                            hx-swap="outerHTML"
+                            hx-headers='js:{"X-TimeZone": Intl.DateTimeFormat().resolvedOptions().timeZone}'>
+                            Done/Undo
+                        </button>
+                        <button hx-delete="/delete-note/?id={{ .ID }}"
+                            hx-confirm="Are you sure you want to delete the note with ID #{{ .ID }}?"
+                            hx-target="closest li" hx-swap="delete" class="btn btn-ghost">
+                            Delete
+                        </button>
                     </div>
                 </div>
-
-                <button type="submit"
-                    class="col-span-2 btn btn-accent pr-10 {{ if .ErrDescription }} mb-6 {{ else }} mb-2 {{ end }}">
-                    <span class="w-5 htmx-indicator" id="spinner"></span>
-                    Submit
-                </button>
-                {{ end }}
-            </form>
-        </section>
-
-        <section class="grid grid-cols-7" hx-get="/notes" hx-target="this" hx-swap="innerHTML"
-            hx-trigger="load from:window" hx-indicator="#loading"
-            hx-headers='js:{"X-TimeZone": Intl.DateTimeFormat().resolvedOptions().timeZone}'>
-            {{ block "note-list" . }}
-            <div class="col-span-7">
-                <span class="block mx-auto loading loading-spinner loading-lg htmx-indicator" id="loading"></span>
             </div>
-            {{ if .Notes}}
-            <ul class="col-span-5 flex flex-col gap-2 mt-4">
-                {{ range .Notes }}
-                {{ block "note-list-element" . }}
-                <li class="card w-full bg-neutral shadow-xl text-neutral-content">
-                    <div class="card-body p-4">
-                        <h3 class="card-title {{if .Completed }} line-through {{end}}">
-                            {{ .Title }}
-                        </h3>
-                        <p>{{ .Description }}</p>
-                        <div class="card-actions justify-between items-end">
-                            <p class="text-left text-xs text-accent font-medium">
-                                {{ .CreatedAt }}
-                            </p>
-                            <div>
-                                <button class="btn btn-primary" hx-patch="/update-note/?id={{ .ID }}"
-                                    hx-target="closest li" hx-swap="outerHTML"
-                                    hx-headers='js:{"X-TimeZone": Intl.DateTimeFormat().resolvedOptions().timeZone}'>
-                                    Done/Undo
-                                </button>
-                                <button hx-delete="/delete-note/?id={{ .ID }}"
-                                    hx-confirm="Are you sure you want to delete the note with ID #{{ .ID }}?"
-                                    hx-target="closest li" hx-swap="delete" class="btn btn-ghost">
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                {{ end }}
-                {{ end }}
-            </ul>
-            {{ else }}
-            <h4 class="col-span-7 mt-6 text-center text-xl text-accent font-medium">
-                No Notes yet.
-            </h4>
-            {{ end }}
-            {{ end }}
-        </section>
-
-    </main>
-
-    {{ template "footer" .}}
-
-    {{ template "button-up" .}}
-
-</body>
-
-</html>
+        </li>
+        {{ end }}
+        {{ end }}
+    </ul>
+    {{ else }}
+    <h4 class="col-span-7 mt-6 text-center text-xl text-accent font-medium">
+        No Notes yet.
+    </h4>
+    {{ end }}
+    {{ end }}
+</section>
+{{ template "base.layout.end" . }}
 
 <!-- 
     RESET FORM:

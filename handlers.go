@@ -1,33 +1,55 @@
 package main
 
 import (
+	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
-	"text/template"
 	"time"
 )
 
 var files = []string{
+	"views/layouts/base.layout.html",
 	"views/index.html",
+	"views/about.html",
 	"views/partials/button-up.html",
 	"views/partials/footer.html",
 }
 
-func ShowIndexPage(w http.ResponseWriter, r *http.Request) {
+var tmpl *template.Template
+
+/* templates will be parsed once at package first import */
+func init() {
+	if tmpl == nil {
+		tmpl = template.Must(template.ParseFiles(files...))
+	}
+}
+
+func ShowHomePage(w http.ResponseWriter, r *http.Request) {
 	year := time.Now().Year()
 
-	data := map[string]int{
-		"Year": year,
+	data := map[string]any{
+		"Title": "Go & HTMx Demo",
+		"Year":  year,
 	}
 
-	tmpl := template.Must(template.ParseFiles(files...))
-	tmpl.Execute(w, data)
+	tmpl.ExecuteTemplate(w, "index.html", data)
+}
+
+func ShowAboutPage(w http.ResponseWriter, r *http.Request) {
+	year := time.Now().Year()
+
+	data := map[string]any{
+		"Title": "About Me | Go & HTMx Demo",
+		"Year":  year,
+	}
+
+	tmpl.ExecuteTemplate(w, "about.html", data)
 }
 
 func GetNotes(w http.ResponseWriter, r *http.Request) {
-	time.Sleep(500 * time.Millisecond) // only to check how the spinner works
+	// time.Sleep(500 * time.Millisecond) // only to check how the spinner works
 
 	// fmt.Println("Time Zone: ", r.Header.Get("X-TimeZone"))
 	note := new(Note)
@@ -46,7 +68,6 @@ func GetNotes(w http.ResponseWriter, r *http.Request) {
 		"Notes": convertedNotes,
 	}
 
-	tmpl := template.Must(template.ParseFiles("views/index.html"))
 	tmpl.ExecuteTemplate(w, "note-list", data)
 }
 
@@ -70,7 +91,6 @@ func AddNote(w http.ResponseWriter, r *http.Request) {
 			"ErrDescription":  errDescription,
 		}
 
-		tmpl := template.Must(template.ParseFiles("views/index.html"))
 		tmpl.ExecuteTemplate(w, "new-note-form", data)
 
 		return
@@ -84,7 +104,8 @@ func AddNote(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("something went wrong: %s", err.Error())
 	}
 
-	w.Header().Set("HX-Redirect", "/") // refresh the page from the client side
+	// https://htmx.org/headers/hx-location/
+	w.Header().Set("HX-Location", "/") // refresh page from client side without reloading
 }
 
 func CompleteNote(w http.ResponseWriter, r *http.Request) {
@@ -102,7 +123,6 @@ func CompleteNote(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("something went wrong: %s", err.Error())
 	}
 
-	tmpl := template.Must(template.ParseFiles("views/index.html"))
 	tmpl.ExecuteTemplate(w, "note-list-element", convertDateTime(updatedNote, r.Header.Get("X-TimeZone")))
 }
 
