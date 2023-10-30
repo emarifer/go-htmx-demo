@@ -10,7 +10,7 @@
 
 ### Screenshot:
 
-<img src="https://github.com/emarifer/go-htmx-demo/assets/68773736/6011f6d6-ed37-46b4-81d4-56e990cc1ef6" width="75%">
+<img src="https://github.com/emarifer/go-htmx-demo/assets/68773736/47d0dda4-0f96-4025-89c1-707d273f3bb3" width="75%">
 
 ---
 

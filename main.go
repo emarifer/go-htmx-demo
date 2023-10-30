@@ -11,7 +11,8 @@ func init() {
 
 func main() {
 
-	http.HandleFunc("/", GetNotes)
+	http.HandleFunc("/", ShowIndexPage)
+	http.HandleFunc("/notes", GetNotes)
 	http.HandleFunc("/add-note", AddNote)
 	http.HandleFunc("/update-note/", CompleteNote)
 	http.HandleFunc("/delete-note/", RemoveNote)

@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 	"text/template"
@@ -16,22 +15,22 @@ var files = []string{
 	"views/partials/footer.html",
 }
 
-func GetNotes(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("X-TimeZone")
-	var timeZone string
-	if err == nil {
-		timeZone, _ = url.QueryUnescape(cookie.Value)
+func ShowIndexPage(w http.ResponseWriter, r *http.Request) {
+	year := time.Now().Year()
+
+	data := map[string]int{
+		"Year": year,
 	}
-	// fmt.Println("Time Zone: ", timeZone)
 
+	tmpl := template.Must(template.ParseFiles(files...))
+	tmpl.Execute(w, data)
+}
+
+func GetNotes(w http.ResponseWriter, r *http.Request) {
+	time.Sleep(500 * time.Millisecond) // only to check how the spinner works
+
+	// fmt.Println("Time Zone: ", r.Header.Get("X-TimeZone"))
 	note := new(Note)
-	/* note.Title = "Primera Nota"
-	note.Description = "Esta es la descripción de la Primera Nota"
-	err := note.CreateNote()
-	if err != nil {
-		log.Fatalf("something went wrong: %s", err.Error())
-	} */
-
 	notesSlice, err := note.GetAllNotes()
 	if err != nil {
 		log.Fatalf("something went wrong: %s", err.Error())
@@ -39,29 +38,19 @@ func GetNotes(w http.ResponseWriter, r *http.Request) {
 
 	convertedNotes := []ConvertedNote{}
 	for _, note := range notesSlice {
-		newConvertedNote := convertDateTime(note, timeZone)
+		newConvertedNote := convertDateTime(note, r.Header.Get("X-TimeZone"))
 		convertedNotes = append(convertedNotes, newConvertedNote)
 	}
 
-	year := time.Now().Year()
-
-	data := map[string]any{
+	data := map[string][]ConvertedNote{
 		"Notes": convertedNotes,
-		"Year":  year,
 	}
 
-	tmpl := template.Must(template.ParseFiles(files...))
-	tmpl.Execute(w, data)
+	tmpl := template.Must(template.ParseFiles("views/index.html"))
+	tmpl.ExecuteTemplate(w, "note-list", data)
 }
 
 func AddNote(w http.ResponseWriter, r *http.Request) {
-	/* cookie, err := r.Cookie("X-TimeZone")
-	var timeZone string
-	if err == nil {
-		timeZone, _ = url.QueryUnescape(cookie.Value)
-	} */
-
-	time.Sleep(1 * time.Second) // only to check how the spinner works
 
 	title := strings.Trim(r.PostFormValue("title"), " ")
 	description := strings.Trim(r.PostFormValue("description"), " ")
@@ -81,7 +70,6 @@ func AddNote(w http.ResponseWriter, r *http.Request) {
 			"ErrDescription":  errDescription,
 		}
 
-		// w.Header().Set("HX-Retarget", "form")
 		tmpl := template.Must(template.ParseFiles("views/index.html"))
 		tmpl.ExecuteTemplate(w, "new-note-form", data)
 
@@ -97,25 +85,9 @@ func AddNote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("HX-Redirect", "/") // refresh the page from the client side
-
-	/* tmpl := template.Must(template.ParseFiles("views/index.html"))
-	tmpl.ExecuteTemplate(w, "note-list-element", convertDateTime(note, timeZone)) */
 }
 
 func CompleteNote(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("X-TimeZone")
-	var timeZone string
-	if err == nil {
-		timeZone, _ = url.QueryUnescape(cookie.Value)
-	}
-
-	/* urlStr := r.URL.String()
-	myUrl, _ := url.Parse(urlStr)
-	params, _ := url.ParseQuery(myUrl.RawQuery)
-	id, _ := strconv.Atoi(params.Get("id"))
-
-	fmt.Println("ID: ", r.URL.Query().Get("id")) */
-
 	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
 
 	note := new(Note)
@@ -131,7 +103,7 @@ func CompleteNote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmpl := template.Must(template.ParseFiles("views/index.html"))
-	tmpl.ExecuteTemplate(w, "note-list-element", convertDateTime(updatedNote, timeZone))
+	tmpl.ExecuteTemplate(w, "note-list-element", convertDateTime(updatedNote, r.Header.Get("X-TimeZone")))
 }
 
 func RemoveNote(w http.ResponseWriter, r *http.Request) {
@@ -143,9 +115,6 @@ func RemoveNote(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatalf("something went wrong: %s", err.Error())
 	}
-
-	/* w.Header().Set("HX-Redirect", "/")
-	w.WriteHeader(http.StatusNoContent) */
 }
 
 /* HOW TO EXTRACT URL QUERY PARAMETERS IN GO. VER:
