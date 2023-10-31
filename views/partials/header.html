@@ -1,0 +1,21 @@
+{{ define "header" }}
+<header>
+    <nav class="flex justify-between items-center mb-8 w-full">
+        <a hx-swap="transition:true" href="/" class="whitespace-nowrap text-3xl font-semibold">
+            Go & HTMx Demo
+        </a>
+        <div class="flex justify-center items-center mx-4">
+            <a href="https://go.dev/" target="_blank">
+                <img class="w-20" src="/static/img/gopher-svgrepo-com.svg" alt="Logo Gopher">
+            </a>
+            <a href="https://htmx.org/" target="_blank">
+                <img class="w-56" src="/static/img/htmx-logo.png" alt="Logo Htmx">
+            </a>
+        </div>
+        <a class="text-xl font-semibold text-accent hover:text-accent-content btn btn-outline hover:bg-accent capitalize"
+            hx-swap="transition:true" href="/about">
+            About Me
+        </a>
+    </nav>
+</header>
+{{end }}

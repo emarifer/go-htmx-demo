@@ -32,8 +32,9 @@
     </form>
 </section>
 
-<section class="grid grid-cols-7" hx-get="/notes" hx-target="this" hx-swap="innerHTML" hx-trigger="load from:window"
-    hx-indicator="#loading" hx-headers='js:{"X-TimeZone": Intl.DateTimeFormat().resolvedOptions().timeZone}'>
+<section class="grid grid-cols-7" hx-get="/notes" hx-target="this" hx-swap="innerHTML transition:true"
+    hx-trigger="load from:window" hx-indicator="#loading"
+    hx-headers='js:{"X-TimeZone": Intl.DateTimeFormat().resolvedOptions().timeZone}'>
     {{ block "note-list" . }}
     <div class="col-span-7">
         <span class="block mx-auto loading loading-spinner loading-lg htmx-indicator" id="loading"></span>

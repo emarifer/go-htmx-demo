@@ -15,6 +15,7 @@ var files = []string{
 	"views/about.html",
 	"views/partials/button-up.html",
 	"views/partials/footer.html",
+	"views/partials/header.html",
 }
 
 var tmpl *template.Template
