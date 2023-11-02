@@ -16,6 +16,7 @@ var files = []string{
 	"views/partials/button-up.html",
 	"views/partials/footer.html",
 	"views/partials/header.html",
+	"views/partials/modal.html",
 }
 
 var tmpl *template.Template
@@ -92,6 +93,8 @@ func AddNote(w http.ResponseWriter, r *http.Request) {
 			"ErrDescription":  errDescription,
 		}
 
+		w.Header().Set("HX-Retarget", "form")
+		w.Header().Set("HX-Reswap", "innerHTML")
 		tmpl.ExecuteTemplate(w, "new-note-form", data)
 
 		return
@@ -100,13 +103,12 @@ func AddNote(w http.ResponseWriter, r *http.Request) {
 	newNote := new(Note)
 	newNote.Title = title
 	newNote.Description = description
-	_, err := newNote.CreateNote()
+	note, err := newNote.CreateNote()
 	if err != nil {
 		log.Fatalf("something went wrong: %s", err.Error())
 	}
 
-	// https://htmx.org/headers/hx-location/
-	w.Header().Set("HX-Location", "/") // refresh page from client side without reloading
+	tmpl.ExecuteTemplate(w, "note-list-element", convertDateTime(note, r.Header.Get("X-TimeZone")))
 }
 
 func CompleteNote(w http.ResponseWriter, r *http.Request) {
@@ -116,7 +118,8 @@ func CompleteNote(w http.ResponseWriter, r *http.Request) {
 	note.ID = id
 	recoveredNote, err := note.GetNoteById()
 	if err != nil {
-		log.Fatalf("something went wrong: %s", err.Error())
+		w.Header().Set("HX-Trigger", "{\"myEvent\":\"The requested note was not found &#x1f631;!\"}")
+		return
 	}
 
 	updatedNote, err := recoveredNote.UpdateNote()
@@ -134,7 +137,8 @@ func RemoveNote(w http.ResponseWriter, r *http.Request) {
 	note.ID = id
 	err := note.DeleteNote()
 	if err != nil {
-		log.Fatalf("something went wrong: %s", err.Error())
+		w.Header().Set("HX-Trigger", "{\"myEvent\":\"The requested note was not found &#x1f631;!\"}")
+		return
 	}
 }
 

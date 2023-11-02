@@ -2,45 +2,42 @@
 <section>
     <h2 class="text-left text-xl mt-12 font-medium">Add Note</h2>
 
-    <form class="grid grid-cols-7 my-4 gap-4 items-end" hx-post="/add-note" hx-target="this">
+    <form class="grid grid-cols-7 my-4 gap-4 items-start" hx-post="/add-note" hx-target="#note-list"
+        hx-swap="afterbegin" hx-indicator="#loading" hx-on::after-request="this.reset()"
+        hx-headers='js:{"X-TimeZone": Intl.DateTimeFormat().resolvedOptions().timeZone}'>
         {{ block "new-note-form" . }}
         <div class="col-span-5 flex flex-col gap-4">
             <div class="flex flex-col gap-2">
                 <label for="note-title">Title</label>
                 <input type="text" name="title" id="note-title" class="input input-bordered" autofocus
-                    value="{{ if .FormTitle }}{{.FormTitle}}{{ end }}" />
-                <span class="text-xs text-red-700">
+                    value="{{ .FormTitle }}" />
+                <span _="on click from #form-button put '' into me" class="text-xs text-red-700">
                     {{ .ErrTitle }}
                 </span>
             </div>
             <div class="col-span-5 flex flex-col gap-2">
                 <label for="note-description">Description</label>
                 <input type="text" name="description" id="note-description" class="input input-bordered"
-                    value="{{ if .FormDescription }}{{.FormDescription}}{{ end }}" />
-                <span class="text-xs text-red-700">
+                    value="{{ .FormDescription }}" />
+                <span _="on click from #form-button put '' into me" class="text-xs text-red-700">
                     {{ .ErrDescription }}
                 </span>
             </div>
         </div>
 
-        <button type="submit"
-            class="col-span-2 btn btn-accent pr-10 {{ if .ErrDescription }} mb-6 {{ else }} mb-2 {{ end }}">
-            <span class="w-5 htmx-indicator" id="spinner"></span>
+        <button id="form-button" class="col-span-2 btn btn-accent mt-8">
             Submit
         </button>
         {{ end }}
     </form>
 </section>
 
-<section class="grid grid-cols-7" hx-get="/notes" hx-target="this" hx-swap="innerHTML transition:true"
-    hx-trigger="load from:window" hx-indicator="#loading"
+<span class="block mx-auto loading loading-spinner loading-lg htmx-indicator" id="loading"></span>
+
+<section class="grid grid-cols-7" hx-get="/notes" hx-trigger="load from:window" hx-indicator="#loading"
     hx-headers='js:{"X-TimeZone": Intl.DateTimeFormat().resolvedOptions().timeZone}'>
     {{ block "note-list" . }}
-    <div class="col-span-7">
-        <span class="block mx-auto loading loading-spinner loading-lg htmx-indicator" id="loading"></span>
-    </div>
-    {{ if .Notes}}
-    <ul class="col-span-5 flex flex-col gap-2 mt-4">
+    <ul id="note-list" class="col-span-5 flex flex-col gap-2 mt-4">
         {{ range .Notes }}
         {{ block "note-list-element" . }}
         <li class="card w-full bg-neutral shadow-xl text-neutral-content">
@@ -71,11 +68,6 @@
         {{ end }}
         {{ end }}
     </ul>
-    {{ else }}
-    <h4 class="col-span-7 mt-6 text-center text-xl text-accent font-medium">
-        No Notes yet.
-    </h4>
-    {{ end }}
     {{ end }}
 </section>
 {{ template "base.layout.end" . }}
@@ -87,3 +79,9 @@
     SET COOKIE:
      _="on load set timezone to Intl.DateTimeFormat().resolvedOptions().timeZone then set cookies['X-TimeZone'] to {value: `${timezone}`, maxAge: 31536000}"
  -->
+
+<!-- <script>
+    document.body.addEventListener("myEvent", function (evt) {
+        alert(evt.detail.value);
+    })
+</script> -->

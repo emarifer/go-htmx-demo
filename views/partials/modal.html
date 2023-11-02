@@ -1,0 +1,15 @@
+{{ define "modal" }}
+<div id="modal"
+    _="on closeModal add .closing then wait for animationend then remove me then reload() the location of the window end on myEvent from body put event.detail.value into #message then show me"
+    style="display: none;">
+    <div class="modal-underlay" _="on click trigger closeModal"></div>
+    <div class="modal-content relative bg-base-100 p-6 rounded-2xl">
+        <h3 class="font-bold text-lg">Go & HTMx Demo</h3>
+        <p id="message" class="py-4"></p>
+
+        <button _="on click trigger closeModal" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+            ✕
+        </button>
+    </div>
+</div>
+{{ end }}
