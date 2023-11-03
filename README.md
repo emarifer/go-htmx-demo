@@ -6,14 +6,20 @@
 
 #### Rendering is achieved by using the "html/template" package, i.e. Go's native form of rendering, and the "</> htmx" JavaScript library. The latter makes it possible to make requests to the backend (GET, POST, PATCH and DELETE) without reloading the page as in a SPA, but with a size of said library of only 15K. Additionally, "_hyperscript" is used, another JavaScript library developed by the same author with the purpose of performing a few actions by writing a kind of inline JavaScript code.
 
+###### **Note**: the theoretical bases of Htmx and illustrative examples of its correct use can be consulted in the book HYPERMEDIA SYSTEMS written by the same developer of the library, Carson Gross, in [this site](https://hypermedia.systems/).
+
 ---
 
 ### Screenshots:
 
-Homepage:
+###### Homepage:
+
 <img src="https://github.com/emarifer/go-htmx-demo/assets/68773736/16c11d53-3b0a-49a9-8f43-5fe22a2a1cf0" width="75%">
+
 <br>
-Error reporting modal:
+
+###### Error reporting modal:
+
 <img src="https://github.com/emarifer/go-htmx-demo/assets/68773736/1b32d022-a765-40d5-aa83-65635d931134" width="75%">
 
 ---
