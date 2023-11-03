@@ -8,9 +8,13 @@
 
 ---
 
-### Screenshot:
+### Screenshots:
 
+Homepage:
 <img src="https://github.com/emarifer/go-htmx-demo/assets/68773736/16c11d53-3b0a-49a9-8f43-5fe22a2a1cf0" width="75%">
+<br>
+Error reporting modal:
+<img src="https://github.com/emarifer/go-htmx-demo/assets/68773736/1b32d022-a765-40d5-aa83-65635d931134" width="75%">
 
 ---
 

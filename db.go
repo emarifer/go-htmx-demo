@@ -27,7 +27,7 @@ func MakeMigrations() error {
 
 	stmt := `CREATE TABLE IF NOT EXISTS notes (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		title VARCHAR(64) NULL,
+		title VARCHAR(64) UNIQUE CHECK(title IS NULL OR length(title) <= 64),
 		description VARCHAR(255) NULL,
 		completed BOOLEAN DEFAULT(FALSE),
 		created_at TIMESTAMP DEFAULT DATETIME

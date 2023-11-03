@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -105,7 +106,21 @@ func AddNote(w http.ResponseWriter, r *http.Request) {
 	newNote.Description = description
 	note, err := newNote.CreateNote()
 	if err != nil {
-		log.Fatalf("something went wrong: %s", err.Error())
+		var message string
+
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			message = "The title is already in use 🔥!"
+		} else if strings.Contains(err.Error(), "CHECK constraint failed") {
+			message = "The title is longer than 64 characters 🔥!"
+		} else {
+			message = fmt.Sprintf("Something went wrong: %s 🔥!", err)
+		}
+
+		w.Header().Set("HX-Retarget", "body")
+		w.Header().Set("HX-Reswap", "beforeend")
+		tmpl.ExecuteTemplate(w, "modal", message)
+
+		return
 	}
 
 	tmpl.ExecuteTemplate(w, "note-list-element", convertDateTime(note, r.Header.Get("X-TimeZone")))
@@ -118,7 +133,11 @@ func CompleteNote(w http.ResponseWriter, r *http.Request) {
 	note.ID = id
 	recoveredNote, err := note.GetNoteById()
 	if err != nil {
-		w.Header().Set("HX-Trigger", "{\"myEvent\":\"The requested note was not found &#x1f631;!\"}")
+		// w.Header().Set("HX-Trigger", "{\"myEvent\":\"The requested note was not found &#x1f631;!\"}")
+		w.Header().Set("HX-Retarget", "body")
+		w.Header().Set("HX-Reswap", "beforeend")
+		tmpl.ExecuteTemplate(w, "modal", "The requested note was not found 😱!")
+
 		return
 	}
 
@@ -137,7 +156,10 @@ func RemoveNote(w http.ResponseWriter, r *http.Request) {
 	note.ID = id
 	err := note.DeleteNote()
 	if err != nil {
-		w.Header().Set("HX-Trigger", "{\"myEvent\":\"The requested note was not found &#x1f631;!\"}")
+		w.Header().Set("HX-Retarget", "body")
+		w.Header().Set("HX-Reswap", "beforeend")
+		tmpl.ExecuteTemplate(w, "modal", "The requested note was not found 😱!")
+
 		return
 	}
 }
@@ -148,4 +170,21 @@ https://freshman.tech/snippets/go/extract-url-query-params/
 Parsear parámetros. VER:
 https://www.sitepoint.com/get-url-parameters-with-go/
 https://www.golangprograms.com/how-do-you-set-headers-in-an-http-response-in-go.html
+
+ALTERNATIVE FORM FOR MODAL:
+{{ define "modal" }}
+<div id="modal"
+    _="on closeModal add .closing then wait for animationend then remove me then reload() the location of the window end on myEvent from body put event.detail.value into #message then show me"
+    style="display: none;">
+    <div class="modal-underlay" _="on click trigger closeModal"></div>
+    <div class="modal-content relative bg-base-100 p-6 rounded-2xl">
+        <h3 class="font-bold text-lg">Go & HTMx Demo</h3>
+        <p id="message" class="py-4"></p>
+
+        <button _="on click trigger closeModal" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+            ✕
+        </button>
+    </div>
+</div>
+{{ end }}
 */
