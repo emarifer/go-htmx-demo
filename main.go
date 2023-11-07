@@ -38,8 +38,20 @@ https://htmx.org/attributes/hx-boost/
 https://hypermedia.systems/htmx-in-action/#_ajax_ifying_our_application
 https://htmx.org/headers/hx-location/
 https://htmx.org/essays/view-transitions/
+https://htmx.org/docs/#special-events
+https://htmx.org/attributes/hx-trigger/#standard-event-modifiers
+https://htmx.org/examples/update-other-content/
+https://www.jetbrains.com/guide/dotnet/tutorials/htmx-aspnetcore/out-of-band-swaps/
+https://www.youtube.com/watch?v=g7Nlo6N2hAk
 https://hyperscript.org/
 https://hypermedia.systems/book/contents/
+
+https://www.calhoun.io/intro-to-templates-p3-functions/
+https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-go
+https://pkg.go.dev/text/template
+https://golangforall.com/en/post/templates.html
+https://krishbhanushali.medium.com/3-simple-techniques-using-go-templates-6718e2cc77e2
+https://blog.logrocket.com/using-golang-templates/
 
 https://github.com/moeenn/htmx-golang-demo
 https://github.com/orlmonteverde/go-api-with-sqlite

@@ -17,12 +17,7 @@
     <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
 </head>
 
-<body _="on scroll from window
-    if (window.scrollY > 200)
-        show #buttonUp
-    else
-        hide #buttonUp
-    end" class="container max-w-xl mx-auto mt-0 pt-20 sample-transition" hx-boost="true">
+<body class="container max-w-xl mx-auto mt-0 pt-20 sample-transition" hx-boost="true">
 
     {{ template "header" .}}
 
@@ -35,13 +30,7 @@
 
     {{ template "footer" .}}
 
-    {{ template "button-up" .}}
-
 </body>
 
 </html>
 {{ end }}
-
-<!-- 
-    <a class="text-xl font-semibold text-accent hover:text-accent-focus" href="/about">About</a>
- -->

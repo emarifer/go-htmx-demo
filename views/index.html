@@ -3,7 +3,7 @@
     <h2 class="text-left text-xl mt-12 font-medium">Add Note</h2>
 
     <form class="grid grid-cols-7 my-4 gap-4 items-start" hx-post="/add-note" hx-target="#note-list"
-        hx-swap="afterbegin" hx-indicator="#loading" hx-on::after-request="this.reset()"
+        hx-indicator="#loading" hx-swap="afterbegin" hx-on::after-request="this.reset()"
         hx-headers='js:{"X-TimeZone": Intl.DateTimeFormat().resolvedOptions().timeZone}'>
         {{ block "new-note-form" . }}
         <div class="col-span-5 flex flex-col gap-4">
@@ -34,7 +34,12 @@
 
 <span class="block mx-auto loading loading-spinner loading-lg htmx-indicator" id="loading"></span>
 
-<section class="grid grid-cols-7" hx-get="/notes" hx-trigger="load from:window" hx-indicator="#loading"
+<section _="on scroll from window
+if (window.scrollY > 200)
+    show #buttonUp
+else
+    hide #buttonUp
+end" class="grid grid-cols-7" hx-get="/notes" hx-trigger="load from:window" hx-indicator="#loading"
     hx-headers='js:{"X-TimeZone": Intl.DateTimeFormat().resolvedOptions().timeZone}'>
     {{ block "note-list" . }}
     <ul id="note-list" class="col-span-5 flex flex-col gap-2 mt-4">
@@ -67,21 +72,19 @@
         </li>
         {{ end }}
         {{ end }}
+        {{ if (.Notes | len | equal) }}
+        <li>
+            <span hx-target="closest li" class="text-accent hover:text-accent-content mt-8"
+                hx-trigger="intersect delay:500ms" hx-get="/notes?page={{ inc .Page }}" hx-select="ul > li"
+                hx-swap="outerHTML">
+                Load More…
+            </span>
+        </li>
+        {{ end }}
     </ul>
+    {{ template "footer" .}}
+
+    {{ template "button-up" .}}
     {{ end }}
 </section>
-{{ template "base.layout.end" . }}
-
-<!-- 
-    RESET FORM:
-     hx-on::after-request="this.reset()"
-
-    SET COOKIE:
-     _="on load set timezone to Intl.DateTimeFormat().resolvedOptions().timeZone then set cookies['X-TimeZone'] to {value: `${timezone}`, maxAge: 31536000}"
- -->
-
-<!-- <script>
-    document.body.addEventListener("myEvent", function (evt) {
-        alert(evt.detail.value);
-    })
-</script> -->
+{{ template "base.layout.end" .}}

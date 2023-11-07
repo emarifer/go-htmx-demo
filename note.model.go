@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -59,9 +60,9 @@ func (n *Note) CreateNote() (Note, error) {
 	return newNote, nil
 }
 
-func (n *Note) GetAllNotes() ([]Note, error) {
+func (n *Note) GetAllNotes(offset int) ([]Note, error) {
 	db := GetConnection()
-	query := "SELECT * FROM notes ORDER BY created_at DESC"
+	query := fmt.Sprintf("SELECT * FROM notes ORDER BY created_at DESC LIMIT 5 OFFSET %d", offset)
 
 	rows, err := db.Query(query)
 	if err != nil {

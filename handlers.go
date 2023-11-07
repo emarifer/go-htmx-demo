@@ -10,22 +10,19 @@ import (
 	"time"
 )
 
-var files = []string{
-	"views/layouts/base.layout.html",
-	"views/index.html",
-	"views/about.html",
-	"views/partials/button-up.html",
-	"views/partials/footer.html",
-	"views/partials/header.html",
-	"views/partials/modal.html",
-}
-
 var tmpl *template.Template
+
+var funcMap = template.FuncMap{
+	"equal": func(n int) bool { return n == 5 },
+	"inc":   func(n int) int { return n + 1 },
+}
 
 /* templates will be parsed once at package first import */
 func init() {
 	if tmpl == nil {
-		tmpl = template.Must(template.ParseFiles(files...))
+		tmpl = template.Must(template.ParseGlob("views/partials/*.html")).Funcs(funcMap)
+		template.Must(tmpl.ParseGlob("views/*.html"))
+		template.Must(tmpl.ParseGlob("views/layouts/*.html"))
 	}
 }
 
@@ -55,8 +52,16 @@ func GetNotes(w http.ResponseWriter, r *http.Request) {
 	// time.Sleep(500 * time.Millisecond) // only to check how the spinner works
 
 	// fmt.Println("Time Zone: ", r.Header.Get("X-TimeZone"))
+	var intPage int
+	intPage, _ = strconv.Atoi(r.URL.Query().Get("page"))
+	if intPage == 0 {
+		intPage = 1
+	}
+
+	offset := (intPage - 1) * 5
+
 	note := new(Note)
-	notesSlice, err := note.GetAllNotes()
+	notesSlice, err := note.GetAllNotes(offset)
 	if err != nil {
 		log.Fatalf("something went wrong: %s", err.Error())
 	}
@@ -67,8 +72,9 @@ func GetNotes(w http.ResponseWriter, r *http.Request) {
 		convertedNotes = append(convertedNotes, newConvertedNote)
 	}
 
-	data := map[string][]ConvertedNote{
+	data := map[string]any{
 		"Notes": convertedNotes,
+		"Page":  intPage,
 	}
 
 	tmpl.ExecuteTemplate(w, "note-list", data)
@@ -104,7 +110,7 @@ func AddNote(w http.ResponseWriter, r *http.Request) {
 	newNote := new(Note)
 	newNote.Title = title
 	newNote.Description = description
-	note, err := newNote.CreateNote()
+	_, err := newNote.CreateNote()
 	if err != nil {
 		var message string
 
@@ -123,7 +129,7 @@ func AddNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl.ExecuteTemplate(w, "note-list-element", convertDateTime(note, r.Header.Get("X-TimeZone")))
+	w.Header().Set("HX-Location", "/")
 }
 
 func CompleteNote(w http.ResponseWriter, r *http.Request) {
@@ -162,6 +168,8 @@ func RemoveNote(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	w.Header().Set("HX-Location", "/")
 }
 
 /* HOW TO EXTRACT URL QUERY PARAMETERS IN GO. VER:
