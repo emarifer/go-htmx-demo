@@ -1,0 +1,43 @@
+{{ define "note-list" }}
+<ul id="note-list" class="col-span-5 flex flex-col gap-2 mt-4">
+    {{ range .Notes }}
+    {{ block "note-list-element" . }}
+    <li class="card w-full bg-neutral shadow-xl text-neutral-content">
+        <div class="card-body p-4">
+            <h3 class="card-title {{if .Completed }} line-through {{end}}">
+                {{ .Title }}
+            </h3>
+            <p>{{ .Description }}</p>
+            <div class="card-actions justify-between items-end">
+                <p class="text-left text-xs text-accent font-medium">
+                    {{ .CreatedAt }}
+                </p>
+                <div>
+                    <button class="btn btn-primary" hx-patch="/update-note/?id={{ .ID }}" hx-target="closest li"
+                        hx-swap="outerHTML"
+                        hx-headers='js:{"X-TimeZone": Intl.DateTimeFormat().resolvedOptions().timeZone}'>
+                        Done/Undo
+                    </button>
+                    <button hx-delete="/delete-note/?id={{ .ID }}"
+                        hx-confirm="Are you sure you want to delete the note with ID #{{ .ID }}?" hx-target="closest li"
+                        hx-swap="delete" class="btn btn-ghost">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </li>
+    {{ end }}
+    {{ end }}
+
+    {{ if .ShowMore }}
+    <li>
+        <span hx-target="closest li" class="text-accent hover:text-accent-content mt-8"
+            hx-trigger="intersect delay:500ms" hx-get="/notes?page={{ .IncPage }}" hx-select="ul > li"
+            hx-swap="outerHTML">
+            Load More…
+        </span>
+    </li>
+    {{ end }}
+</ul>
+{{ end }}

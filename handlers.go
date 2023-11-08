@@ -12,17 +12,19 @@ import (
 
 var tmpl *template.Template
 
-var funcMap = template.FuncMap{
+/* var funcMap = template.FuncMap{
 	"equal": func(n int) bool { return n == 5 },
 	"inc":   func(n int) int { return n + 1 },
-}
+} */
 
 /* templates will be parsed once at package first import */
 func init() {
 	if tmpl == nil {
-		tmpl = template.Must(template.ParseGlob("views/partials/*.html")).Funcs(funcMap)
-		template.Must(tmpl.ParseGlob("views/*.html"))
-		template.Must(tmpl.ParseGlob("views/layouts/*.html"))
+		if tmpl == nil {
+			tmpl = template.Must(tmpl.ParseGlob("views/layouts/*.html"))
+			template.Must(tmpl.ParseGlob("views/*.html"))
+			template.Must(tmpl.ParseGlob("views/partials/*.html"))
+		}
 	}
 }
 
@@ -73,8 +75,9 @@ func GetNotes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]any{
-		"Notes": convertedNotes,
-		"Page":  intPage,
+		"Notes":    convertedNotes,
+		"IncPage":  intPage + 1,
+		"ShowMore": len(convertedNotes) == 5,
 	}
 
 	tmpl.ExecuteTemplate(w, "note-list", data)
